@@ -1,6 +1,8 @@
 TT←{
 	(p d t k n lx pos end)exp sym IN←⍵
 
+	∨⌿t=R:'TRAIN NODES MUST BE LOWERED BEFORE TT' SIGNAL SELECT ⍸t=R
+
 	⍝ Convert primitive niladic references to E3(P2) forms
 	i←⍸(t=P)∧(k=1)∧'⎕⍞'∊⍨⊃¨sym[|n]
 	p,←i ⋄ t n lx pos end(⊣,I)←⊂i ⋄ k,←(≢i)⍴2 ⋄ t[i]←E ⋄ k[i]←3 ⋄ n[i]←0
