@@ -358,7 +358,7 @@ PS←{
 	zm←¯1⌽msk ⋄ p[km⌿i]←(zpm⌿(i×~km)+zm⍀nz)[km⌿¯1++⍀zpm←zm∨~km]
 
 	⍝ This is the definition of a function value at this point
-	isfn←{(t[⍵]∊O C)∨(t[⍵]∊B P V Z)∧k[⍵]=2}
+	isfn←{(t[⍵]∊O C R)∨(t[⍵]∊B P V Z)∧k[⍵]=2}
 
 	⍝ Parse modified assignment to E4(V, C, Z)
 	j←i⌿⍨m←msk∧(¯1⌽isfn i)∧¯2⌽(t[i]=V)∧k[i]=1 ⋄ p[zi←nz⌿⍨msk⌿m]←j
@@ -390,11 +390,22 @@ PS←{
 		msg SIGNAL SELECT ∊p[i]{⊂⍵⌿⍨⌽∨⍀⌽n[⍵]=bn}⌸i←⍸p∊p[⍸msk]
 	}⍬
 
-	⍝ TRAINS
+	⍝ This is the definition of an array value at this point
+	isarr←{(k[⍵]=1)∨((t[⍵]=A)∧k[⍵]∊¯1 0 7)∨((t[⍵]=P)∧(n[⍵]∊¯1 ¯2)∧(vb[⍵]=¯1))}
+
+	⍝ Parse trains as R nodes with kinds 2 (atop) and 3 (fork)
+	_←p[i]{
+		~(⊃fn)∧(2≤c)∧(∧⌿fn⌿⍨2|⍳c←≢⍵)∧∧⌿(⌽isarr⍵)∨fn←⌽isfn⍵:0
+		r←(≢p)+nf←⍳¯1+⌊c÷2 ⋄ s←⌽(⊂2+2×nf)⌷⌽⍳c
+		p[⍵]←(⍺,r)[+⍀(⍳c)∊s] ⋄ p,←(≢r)↑⍺,r
+		t[⍺]←R ⋄ k[⍺]←2+2|c
+		t,←r≢⍛⍴R ⋄ k,←r≢⍛⍴3 ⋄ n,←r≢⍛⍴0 ⋄ lx,←r≢⍛⍴0 ⋄ vb,←r≢⍛⍴¯1
+		pos,←pos[⍵[s]] ⋄ end,←r≢⍛⍴end[⊃⌽⍵]
+	0}⌸i←⍸(t[p]=Z)∧p≠⍳≢p
 
 	⍝ Parse value expressions
 	i km←⍪⌿p[i]{(⍺⍪⍵)(0,(2≤≢⍵)∧1∨⍵)}⌸i←⍸(t[p]=Z)∧(k[p]=1)∧p≠⍳≢p
-	msk←m2∨fm∧~¯1⌽m2←km∧(1⌽km)∧~fm←(t[i]=O)∨(t[i]≠A)∧k[i]=2
+	msk←m2∨fm∧~¯1⌽m2←km∧(1⌽km)∧~fm←(t[i]∊O R)∨(t[i]≠A)∧k[i]=2
 	t,←E⍴⍨xc←+⌿msk ⋄ k,←msk⌿msk+m2 ⋄ n,←xc⍴0 ⋄ lx,←xc⍴0
 	pos,←pos[msk⌿i] ⋄ end,←end[p[msk⌿i]]
 	p,←msk⌿¯1⌽(i×~km)+km×x←¯1+(≢p)++⍀msk ⋄ p[km⌿i]←km⌿x

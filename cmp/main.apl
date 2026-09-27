@@ -3,8 +3,8 @@ VERSION←5 7 1
 AF∆PREFIX←'/opt/arrayfire'
 VS∆PATH←'\Program Files\Microsoft Visual Studio\2022\Community'
 f∆←'ptknfsrdx'
-N∆←'∘ABCEFGHKLMNOPSTVZ'
-(A B C E F G H K L M N O P S T V Z)←1+⍳17
+N∆←'∘ABCEFGHKLMNOPRSTVZ'
+(A B C E F G H K L M N O P R S T V Z)←1+⍳18
 
 Compile←{
 	m←(-≢2⊃⎕NPARTS ⍵)↓⍵
