@@ -73,6 +73,107 @@ mk_derf(struct cell_derf **k, func_mon fm, func_dya fd, unsigned int fs)
 }
 
 DECLSPEC int
+train_atop_mon(struct cell_array **z, struct cell_array *y, struct cell_func *self)
+{
+	struct cell_func *f = self->fv[0], *g = self->fv[1];
+	struct cell_array *v = NULL;
+	int err = 0;
+
+	CHKFN(g->fptr_mon(&v, y, g), done);
+	if (err) goto done;
+	CHKFN(f->fptr_mon(z, v, f), done);
+done:
+	release_array(v);
+	return err;
+}
+
+DECLSPEC int
+train_atop_dya(struct cell_array **z, struct cell_array *x,
+    struct cell_array *y, struct cell_func *self)
+{
+	struct cell_func *f = self->fv[0], *g = self->fv[1];
+	struct cell_array *v = NULL;
+	int err = 0;
+
+	CHKFN(g->fptr_dya(&v, x, y, g), done);
+	if (err) goto done;
+	CHKFN(f->fptr_mon(z, v, f), done);
+done:
+	release_array(v);
+	return err;
+}
+
+DECLSPEC int
+train_fork_func_mon(struct cell_array **z, struct cell_array *y,
+    struct cell_func *self)
+{
+	struct cell_func *f = self->fv[0], *g = self->fv[1], *h = self->fv[2];
+	struct cell_array *l = NULL, *r = NULL;
+	int err = 0;
+
+	CHKFN(h->fptr_mon(&r, y, h), done);
+	if (err) goto done;
+	CHKFN(f->fptr_mon(&l, y, f), done);
+	if (err) goto done;
+	CHKFN(g->fptr_dya(z, l, r, g), done);
+done:
+	release_array(l);
+	release_array(r);
+	return err;
+}
+
+DECLSPEC int
+train_fork_func_dya(struct cell_array **z, struct cell_array *x,
+    struct cell_array *y, struct cell_func *self)
+{
+	struct cell_func *f = self->fv[0], *g = self->fv[1], *h = self->fv[2];
+	struct cell_array *l = NULL, *r = NULL;
+	int err = 0;
+
+	CHKFN(h->fptr_dya(&r, x, y, h), done);
+	if (err) goto done;
+	CHKFN(f->fptr_dya(&l, x, y, f), done);
+	if (err) goto done;
+	CHKFN(g->fptr_dya(z, l, r, g), done);
+done:
+	release_array(l);
+	release_array(r);
+	return err;
+}
+
+DECLSPEC int
+train_fork_array_mon(struct cell_array **z, struct cell_array *y,
+    struct cell_func *self)
+{
+	struct cell_array *l = self->fv[0], *r = NULL;
+	struct cell_func *g = self->fv[1], *h = self->fv[2];
+	int err = 0;
+
+	CHKFN(h->fptr_mon(&r, y, h), done);
+	if (err) goto done;
+	CHKFN(g->fptr_dya(z, l, r, g), done);
+done:
+	release_array(r);
+	return err;
+}
+
+DECLSPEC int
+train_fork_array_dya(struct cell_array **z, struct cell_array *x,
+    struct cell_array *y, struct cell_func *self)
+{
+	struct cell_array *l = self->fv[0], *r = NULL;
+	struct cell_func *g = self->fv[1], *h = self->fv[2];
+	int err = 0;
+
+	CHKFN(h->fptr_dya(&r, x, y, h), done);
+	if (err) goto done;
+	CHKFN(g->fptr_dya(z, l, r, g), done);
+done:
+	release_array(r);
+	return err;
+}
+
+DECLSPEC int
 mk_moper(struct cell_moper **k, 
     func_mon fam, func_dya fad, func_mon ffm, func_dya ffd,
     unsigned int fs)

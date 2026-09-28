@@ -21,7 +21,7 @@ GC←{
 	var_ckinds←{
 		types←'' 'array' 'func' 'moper' 'doper' 'env' 'void' 'array'
 		isa←t[⍵]∊A E S
-		isfn←(t[⍵]=O)∨(t[⍵]=F)∧k[⍵]<5
+		isfn←(t[⍵]∊O R)∨(t[⍵]=F)∧k[⍵]<5
 		isdop←(t[⍵]=F)∧k[⍵]≥11
 		ismop←(~isdop)∧(t[⍵]=F)∧k[⍵]≥5
 		types[4@{isdop}3@{ismop}2@{isfn}1@{isa}k[⍵]]
@@ -349,7 +349,23 @@ GC←{
 		z,←(n[yi]>0)⌿⊂'release_',rtyp,'(',y,'); ',y,' = NULL;'
 		z,⊂''
 	}¨i
-	
+
+	⍝ R: Atops and forks
+	i←⍸t=R
+	zz[i],←{
+		0=≢i:0⍴⊂''
+		ks←⍵⊃kk ⋄ vs←var_values ks ⋄ tgt←⊃var_values ⍵
+		kind←'atop' 'fork_array' 'fork_func'[(k[⍵]=3)×1+(k[⊃ks]≠1)]
+		fns←'train_',kind,'_mon, train_',kind,'_dya'
+		z←check_vars ks
+		z,←(n[⍵]<0)⌿⊂'tmp = ',tgt,';'
+		z,←⊂'CHK(mk_derf((struct cell_derf **)',(⊃var_refs ⍵),', ',fns,', ',(⍕≢ks),'), cleanup, ',(highlight ⍵),');'
+		z,←(⍳≢ks){⊂tgt,'->fv[',(⍕⍺),'] = retain_cell(',⍵,');'}¨vs
+		z,←(n[⍵]<0)⌿⊂'release_func(tmp); tmp = NULL;'
+		z,←(n[ks]>0)⌿(var_ckinds ks){'release_',⍺,'(',⍵,'); ',⍵,' = NULL;'}¨vs
+		z,⊂''
+	}¨i
+
 	⍝ Ox: Axis Operator and Variant Operator
 	i←⍸(t=O)∧k=¯1
 	zz[i],←{
@@ -556,7 +572,7 @@ GC←{
 	pref,←⊂''
 
 	⍝ Export functions
-	i←⍸(n<0)∧(t[p]=F)∧(k[p]=0)∧(t=O)∨(t∊B C)∧(k=2)
+	i←⍸(n<0)∧(t[p]=F)∧(k[p]=0)∧(t∊O R)∨(t∊B C)∧(k=2)
 	exp←⊃⍪⌿{
 		fn ns←var_names ⍵,p[⍵]
 		fnv←⊃var_values ⍵
