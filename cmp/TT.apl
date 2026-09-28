@@ -1,8 +1,6 @@
 TT←{
 	(p d t k n lx pos end)exp sym IN←⍵
 
-	∨⌿t=R:'TRAIN NODES MUST BE LOWERED BEFORE TT' SIGNAL SELECT ⍸t=R
-
 	⍝ Convert primitive niladic references to E3(P2) forms
 	i←⍸(t=P)∧(k=1)∧'⎕⍞'∊⍨⊃¨sym[|n]
 	p,←i ⋄ t n lx pos end(⊣,I)←⊂i ⋄ k,←(≢i)⍴2 ⋄ t[i]←E ⋄ k[i]←3 ⋄ n[i]←0
@@ -91,17 +89,17 @@ TT←{
 	n[i]←0 ⋄ t[j]←V ⋄ k[j]←1 ⋄ mu[j]←1
 
 	⍝ Allocate named targets in the n field for bound application nodes
-	msk←((t[p]=B)∧~k[p]∊0 7)∧(t∊C E O)∨((t=A)∧k=7)∨(t=B)∧~k∊0 7
+	msk←((t[p]=B)∧~k[p]∊0 7)∧(t∊C E O R)∨((t=A)∧k=7)∨(t=B)∧~k∊0 7
 	msk[p⌿⍨(t[p]=B)∧(t∊V P)∨(t=A)∧k=1]←0 ⋄ i←⍸msk
 	n mu lx{⍺[⍵]@i⊢⍺}←⊂p[i] ⋄ i←⍸msk←(~msk)∧(⍳≢p)∊p[i] ⋄ p←(p[i]@i⍳≢p)[p]
 	p t k n lx mu r pos end⌿⍨←⊂~msk ⋄ p r(⊣-1+⍸⍨)←⊂i ⋄ n[j]←i(⊢-1+⍸)n[j←⍸n>0]
 	
 	⍝ Allocate frame variables for unbound application results
-	msk←((t=B)∧k=0)∨((t[p]=B)⍲k[p]=0)∧(k≠0)∧(t∊C E O)∨(t∊A S)∧k=7
+	msk←((t=B)∧k=0)∨((t[p]=B)⍲k[p]=0)∧(k≠0)∧(t∊C E O R)∨(t∊A S)∧k=7
 	pi←p[i←⍸msk∧n≥0] ⋄ d←⊃P2D p ⋄ msk←(t=E)∧k∊0 ¯1 ⋄ lx[i]←6
 	cg←(pi∘.=i)∨(∘.=⍨pi)∨(∘.<⍨i)∧(∘.>⍨d[i])∧∘.=⍨p I@{~msk[⍵]}⍣≡i
 	cg∨←i∘.=(t[ppi]=B)∧(k[ppi]=0)∧ppi←p[pi]
-	cg∧←∘.=⍨t[i]∊C O ⋄ cg∨←⍉cg ⋄ cg∧←~∘.=⍨⍳≢i
+	cg∧←∘.=⍨t[i]∊C O R ⋄ cg∨←⍉cg ⋄ cg∧←~∘.=⍨⍳≢i
 	wgt←?0⍴⍨≢i
 	_←{
 		mis←wgt{wgt←⍺ ⋄ mis←⍵
@@ -116,12 +114,12 @@ TT←{
 	n[p[i]]←n[i←⍸(t[p]=E)∧k[p]=¯1] ⋄ lx[p[i]]←lx[i]
 	
 	⍝ Add V nodes for each application node in preparation for lifting
-	msk←((t[p]=B)⍲k[p]=0)∧(t∊B C O S)∨((t=E)∧k>0)∨(t=A)∧k=7 ⋄ i←(+⍀1+msk)-1
+	msk←((t[p]=B)⍲k[p]=0)∧(t∊B C O S R)∨((t=E)∧k>0)∨(t=A)∧k=7 ⋄ i←(+⍀1+msk)-1
 	p t k n lx mu r pos end⌿⍨←⊂1+msk ⋄ p r{⍵[⍺]}←⊂i ⋄ n[j]←i[n[j←⍸n>0]]
-	j←¯1+msk⌿i ⋄ k[j⌿⍨(t[j]∊A E S)∨(t[j]=B)∧k[j]=0]←1 ⋄ k[j⌿⍨t[j]=O]←2 ⋄ t[j]←V
+	j←¯1+msk⌿i ⋄ k[j⌿⍨(t[j]∊A E S)∨(t[j]=B)∧k[j]=0]←1 ⋄ k[j⌿⍨t[j]∊O R]←2 ⋄ t[j]←V
 
 	⍝ Lift and flatten expressions
-	i←⍸(t∊B C E G O S Z)∨(t=A)∧k≠1
+	i←⍸(t∊B C E G O S Z R)∨(t=A)∧k≠1
 	msk←~(t∊F G)∨((t=B)∧k=7)∨gm←(t[p]=G)∧~(t=V)∨((t=A)∧k=1)∨(t=E)∧k=0
 	p[i]←p[x←p[p] I@{gm[p[⍵]]}p I@{msk[p[⍵]]}⍣≡p I@{gm[⍵]}i]
 	⍝ j←p I@{(t[p[⍵]]=G)∧~(t[⍵]=V)∨((t[⍵]=A)∧k[⍵]=1)∨(t[⍵]=E)∧k[⍵]=0}i
@@ -140,7 +138,7 @@ TT←{
 	⍝ Compute a function's local, free, and stack variables
 	lv←(≢p)⍴⊂⍬ ⋄ fv←(≢p)⍴⊂⍬ ⋄ sv←(≢p)⍴⊂⍬
 	lv[r[i]],←i←i⌿⍨≠(r,⍪n)[i←⍸(t∊B S V)∧(lx=0)∧n<0;]
-	typ←1@(⍸(t∊A E S)∨(t=B)∧k=0)⊢2@(⍸t=O)⊢k[i]@(i←⍸t∊B C V)⊢(≢p)⍴0
+	typ←1@(⍸(t∊A E S)∨(t=B)∧k=0)⊢2@(⍸t∊O R)⊢k[i]@(i←⍸t∊B C V)⊢(≢p)⍴0
 	sv[r[i]],←i←i⌿⍨≠(r,n,⍪typ)[i←⍸(lx=6)∧n>0;]
 	fv[p[i]],←i←⍸(t=V)∧(t[p]=C)∧n<0
 	fv[n[i]]←fv[p[i←⍸(t=V)∧(t[p]=C)∧n≥0]]
